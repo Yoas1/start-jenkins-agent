@@ -23,12 +23,9 @@ def start_agent():
 
 
 if __name__ == '__main__':
-    try:
-        if not path.exists("config"):
-            new_agent()
-            start_agent()
-        else:
-            start_agent()
-    except KeyboardInterrupt:
-        print("Program stopped")
-        exit(0)
+
+    if not path.exists("config"):
+        new_agent()
+        start_agent()
+    else:
+        start_agent()
