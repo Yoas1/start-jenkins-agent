@@ -1,6 +1,5 @@
 import os
 from os import path
-import subprocess
 
 
 def new_agent():
