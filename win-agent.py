@@ -1,7 +1,13 @@
 import os
 from os import path
 
-
+def chck_status():
+    data = os.popen('curl -u<user>:<password> <curl>').read()
+    if '"offline":true' in data:
+        print("ok")
+    else:
+        print("no")
+    
 def new_agent():
     url_config = input("Enter agent url: ") #= http://192.168.1.167:8080/computer/win/jenkins-agent.jnlp
     secret_config = input("Enter agent secret: ") #=288758c8463a3d2e9f96918dc75f45004c7b90dab86c4b5ab294c9a694437037
