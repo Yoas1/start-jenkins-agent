@@ -4,9 +4,20 @@ import subprocess
 import time
 import datetime
 import re
+global system_os
+global agent_name
+
+
+def check_os():
+    global system_os
+    if name == 'nt':
+        system_os = "windows"
+    else:
+        system_os = "linux"
 
 
 def clear_screen():
+    global system_os
     if name == 'nt':
         _ = system('cls')
     else:
@@ -18,8 +29,20 @@ def time_now():
     return now
 
 
+def read_config():
+    f = open("config", "r")
+    list_file = []
+    for x in f:
+        list_file.append(x)
+    r_url = str(list_file[0].replace('\n', ""))
+    r_secret = str(list_file[1].replace('\n', ""))
+    r_workdir = str(list_file[2].replace('\n', ""))
+    r_agent_name = re.sub(r'^.*?computer/', '', r_url).replace("/jenkins-agent.jnlp", "")
+    return r_url, r_secret, r_workdir, r_agent_name
+
+
 def check_offline():
-    data = os.popen('curl --silent -uyoas1:Aa5589aa http://192.168.1.88:8080/computer/windows/api/json').read()
+    data = os.popen('curl --silent -u<user>:<password> <url>/<agent_name>/api/json').read()
     if '"offline":true' in data:
         return "offline"
     if '"offline":false' in data:
@@ -29,28 +52,27 @@ def check_offline():
 
 
 def new_agent():
-    url_config = input("Enter agent url: ") #= http://192.168.1.88:8080/computer/windows/jenkins-agent.jnlp
-    secret_config = input("Enter agent secret: ") #= e14177823181b19597a08c974eb74e453f117e9a8089c842633e0e4208f4c43e
-    workdir_config = input("Enter agent workdir: ") #= D:\\agent
+    global agent_name
+    url_config = input("Enter agent url: ") #= <url>/<agent_name>/jenkins-agent.jnlp
+    secret_config = input("Enter agent secret: ") #= <secret>
+    workdir_config = input("Enter agent workdir: ") #= <workdir>
     with open('config', 'w') as conf:
         conf.write(url_config + '\n' + secret_config + '\n' + workdir_config + '\n')
 
 
 def start_agent():
     global agent_name
-    f = open("config", "r")
-    list_file = []
-    for x in f:
-        list_file.append(x)
-    url = str(list_file[0].replace('\n', ""))
-    secret = str(list_file[1].replace('\n', ""))
-    workdir = str(list_file[2].replace('\n', ""))
-    agent_name = re.sub(r'^.*?computer/', '', url).replace("/jenkins-agent.jnlp", "")
-    subprocess.Popen(["start", "cmd", "/k", 'java -jar C:\\agent\\agent.jar -jnlpUrl {} -secret {} -workDir {}'.format(url, secret, workdir)], shell = True)
+    check_os()
+    url, secret, workdir, agent_name = read_config()
+    if system_os == "windows":
+        subprocess.Popen(["start", "cmd", "/k", 'java -jar C:\\agent\\agent.jar -jnlpUrl {} -secret {} -workDir {}'
+                         .format(url, secret, workdir)], shell=True)
+    elif system_os == "linux":
+        os.system('java -jar agent.jar -jnlpUrl {} -secret {} -workDir {} &'.format(url, secret, workdir))
 
 
 if __name__ == '__main__':
-    global agent_name
+    url, secret, workdir, agent_name = read_config()
     while True:
         if check_offline() == "offline":
             print("Agent start in few seconds")
