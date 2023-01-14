@@ -45,8 +45,7 @@ def start_agent():
     url = str(list_file[0].replace('\n', ""))
     secret = str(list_file[1].replace('\n', ""))
     workdir = str(list_file[2].replace('\n', ""))
-    agent_name = re.sub(r'^.*?computer/', '', url)
-    agent_name = agent_name.replace("/jenkins-agent.jnlp", "")
+    agent_name = re.sub(r'^.*?computer/', '', url).replace("/jenkins-agent.jnlp", "")
     subprocess.Popen(["start", "cmd", "/k", 'java -jar C:\\agent\\agent.jar -jnlpUrl {} -secret {} -workDir {}'.format(url, secret, workdir)], shell = True)
 
 
