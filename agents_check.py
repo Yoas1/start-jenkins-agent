@@ -2,6 +2,8 @@ import re
 import time
 import datetime
 from os import system, name, popen
+from colorama import init as colorama_init
+from colorama import Fore, Back, Style
 
 
 def clear_screen():
@@ -16,7 +18,7 @@ def time_now():
     return now
 
 
-while True:
+def check_agents():
     print(time_now())
     urls_file = open('agents_config', 'r')
     urls_data = urls_file.read()
@@ -31,10 +33,16 @@ while True:
         url_check = agent + '/api/json'
         data = popen('curl --silent -u<user>:<password> {}'.format(url_check)).read()
         if '"offline":true' in data:
-            print(agent_name + " offline")
+            print(agent_name + " " + Fore.LIGHTWHITE_EX + Back.RED + "offline" + Style.RESET_ALL)
         elif '"offline":false' in data:
-            print(agent_name + " online")
+            print(agent_name + " " + Fore.LIGHTWHITE_EX + Back.GREEN + "online" + Style.RESET_ALL)
         else:
-            print("Error")
+            print(Fore.RED + "Error" + Style.RESET_ALL)
     time.sleep(interval)
     clear_screen()
+
+
+if __name__ == "__main__":
+    colorama_init()
+    while True:
+        check_agents()
